@@ -16,9 +16,11 @@ public class TwoFactorService {
     }
     
     public String generateQRCodeUrl(String email, String secret) {
-        GoogleAuthenticatorKey key = new GoogleAuthenticatorKey.Builder(secret).build();
-        return GoogleAuthenticatorQRGenerator.getOtpAuthURL(
-            "2FA-API", email, key);
+        // Format manuel de l'URL TOTP
+        return String.format(
+            "otpauth://totp/%s:%s?secret=%s&issuer=%s",
+            "SecureAuth", email, secret, "SecureAuth"
+        );
     }
     
     public boolean verifyCode(String secret, int code) {

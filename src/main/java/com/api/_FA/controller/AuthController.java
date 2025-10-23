@@ -47,11 +47,17 @@ public class AuthController {
     
     @PostMapping("/enable-2fa")
     public ResponseEntity<AuthResponse> enableTwoFactor(@RequestHeader("Authorization") String token) {
-        String email = jwtService.extractEmail(token.substring(7));
-        // Récupérer l'utilisateur et activer 2FA
-        String qrUrl = authService.enableTwoFactor(1L); // Simplification
-        
-        return ResponseEntity.ok(new AuthResponse(null, false, qrUrl));
+        try {
+            String jwtToken = token.substring(7); // Enlever "Bearer "
+            String email = jwtService.extractEmail(jwtToken);
+            Long userId = jwtService.extractUserId(jwtToken);
+            
+            String qrUrl = authService.enableTwoFactor(userId);
+            
+            return ResponseEntity.ok(new AuthResponse(null, false, qrUrl));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new AuthResponse(null, false, "Erreur: " + e.getMessage()));
+        }
     }
     
     @PostMapping("/verify-2fa")
